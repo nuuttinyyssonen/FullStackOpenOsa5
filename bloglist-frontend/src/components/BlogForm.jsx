@@ -3,39 +3,7 @@ import { useState, useEffect } from 'react'
 import blogService from '../services/blogs'
 import PropTypes from 'prop-types'
 
-const BlogForm = ({ user, displayMessage, setSuccessMessage, setBlogs, blogs }) => {
-
-  const [title, setTitle] = useState('')
-  const [author, setAuthor] = useState('')
-  const [url, setUrl] = useState('')
-
-  useEffect(() => {
-    blogService.getAll().then(blogs =>
-      setBlogs( blogs )
-    )
-  }, [])
-
-  const handleNewPost = async(event) => {
-    event.preventDefault()
-    try {
-      const newBlogPost = {
-        title: title,
-        author: author,
-        url: url
-      }
-      const post = await blogService.create(newBlogPost)
-      setAuthor('')
-      setTitle('')
-      setUrl('')
-      setSuccessMessage('a new blog ' + newBlogPost.title + ' by ' + newBlogPost.author + ' added')
-      const blogs = await blogService.getAll()
-      setBlogs(blogs)
-      displayMessage()
-    } catch(error) {
-      console.error(error)
-    }
-  }
-
+const BlogForm = ({handleNewPost, title, author, url, handleAuthorChange, handleTitleChange, handleUrlChange }) => {
 
   const blogForm = () => (
     <form onSubmit={handleNewPost}>
@@ -46,7 +14,8 @@ const BlogForm = ({ user, displayMessage, setSuccessMessage, setBlogs, blogs }) 
           <input
             type='text'
             value={title}
-            onChange={({ target }) => setTitle(target.value)}
+            onChange={handleTitleChange}
+            placeholder='title'
           />
         </div>
         <div>
@@ -54,7 +23,8 @@ const BlogForm = ({ user, displayMessage, setSuccessMessage, setBlogs, blogs }) 
           <input
             type='text'
             value={author}
-            onChange={({ target }) => setAuthor(target.value)}
+            onChange={handleAuthorChange}
+            placeholder='author'
           />
         </div>
         <div>
@@ -62,7 +32,8 @@ const BlogForm = ({ user, displayMessage, setSuccessMessage, setBlogs, blogs }) 
           <input
             type='text'
             value={url}
-            onChange={({ target }) => setUrl(target.value)}
+            onChange={handleUrlChange}
+            placeholder='url'
           />
         </div>
       </div>
@@ -72,7 +43,7 @@ const BlogForm = ({ user, displayMessage, setSuccessMessage, setBlogs, blogs }) 
 
   return(
     <div>
-      {user && blogForm()}
+      {blogForm()}
     </div>
   )
 

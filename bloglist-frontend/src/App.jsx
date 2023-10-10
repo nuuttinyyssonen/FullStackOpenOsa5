@@ -10,8 +10,13 @@ const App = () => {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
+
   const [successMessage, setSuccessMessage] = useState('')
   const [errorMessage, setErrorMessage] = useState('')
+
+  const [title, setTitle] = useState('')
+  const [author, setAuthor] = useState('')
+  const [url, setUrl] = useState('')
 
   useEffect(() => {
     const loggedUserJSON = window.localStorage.getItem('loggedBlogAppUser')
@@ -20,6 +25,12 @@ const App = () => {
       setUser(user)
       blogService.setToken(user.token)
     }
+  }, [])
+
+  useEffect(() => {
+    blogService.getAll().then(blogs =>
+      setBlogs( blogs )
+    )
   }, [])
 
   const handleLogout = () => {
@@ -54,11 +65,59 @@ const App = () => {
     }, 5000)
   }
 
+  const handleLike = async(author, likes, title, url, id) => {
+    const newLikes = likes + 1
+    const newObject = {
+      title: title,
+      author: author,
+      url: url,
+      likes: newLikes
+    }
+    try {
+      const updatedPost = await blogService.update(id, newObject)
+      const blogs = await blogService.getAll()
+      setBlogs(blogs)
+    } catch(error) {
+      console.error(error)
+    }
+  }
+
+
   const blogsMap = () => {
     const sortedBlogs = blogs.sort((first, second) => second.likes - first.likes)
     return sortedBlogs.map(blog => (
-      <Blog key={blog.id} blog={blog} setBlogs={setBlogs} displayMessage={displayMessage} setErrorMessage={setErrorMessage} user={user}/>
+      <Blog 
+        key={blog.id} 
+        blog={blog} 
+        setBlogs={setBlogs} 
+        displayMessage={displayMessage} 
+        setErrorMessage={setErrorMessage} 
+        user={user} 
+        handleLike={() => handleLike(blog.author, blog.likes, blog.title, blog.url, blog.id)}
+        />
     ))
+  }
+
+  const handleNewPost = async(event) => {
+    event.preventDefault()
+    console.log("fired")
+    try {
+      const newBlogPost = {
+        title: title,
+        author: author,
+        url: url
+      }
+      const post = await blogService.create(newBlogPost)
+      setAuthor('')
+      setTitle('')
+      setUrl('')
+      setSuccessMessage('a new blog ' + newBlogPost.title + ' by ' + newBlogPost.author + ' added')
+      const blogs = await blogService.getAll()
+      setBlogs(blogs)
+      displayMessage()
+    } catch(error) {
+      console.error(error)
+    }
   }
 
   return (
@@ -86,6 +145,13 @@ const App = () => {
           setSuccessMessage={setSuccessMessage}
           setBlogs={setBlogs}
           blogs={blogs}
+          handleNewPost={handleNewPost}
+          title={title}
+          author={author}
+          url={url}
+          handleAuthorChange={(event) => setAuthor(event.target.value)}
+          handleTitleChange={(event) => setTitle(event.target.value)}
+          handleUrlChange={(event) => setUrl(event.target.value)}
         />
       </Togglable>}
 
