@@ -31,13 +31,13 @@ const Blog = ({ blog, setBlogs, setErrorMessage, displayMessage, user, handleLik
   }
 
   return (
-    <div>
-        <p>{blog.title} <button onClick={toggleVisibility}>{button}</button></p>
+    <div className='blog-post'>
+        <p>{blog.title} <button className='show-btn' onClick={toggleVisibility}>{button}</button></p>
         {isShown && <div>
           <p>{blog.url}</p>
-          <p data-testid="likes">{blog.likes} <button onClick={handleLike}>like</button></p>
+          <p data-testid="likes">{blog.likes} <button className='like-btn' onClick={handleLike}>like</button></p>
           <p>{blog.author}</p>
-          {user && blog.user.username === user.username && <button onClick={() => handleDelete(blog.id, blog.title, blog.author)}>Remove</button>}
+          {user && blog.user.username === user.username && <button id='remove-btn' onClick={() => handleDelete(blog.id, blog.title, blog.author)}>Remove</button>}
         </div>}
     </div>
   )
